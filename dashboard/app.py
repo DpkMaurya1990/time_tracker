@@ -7,8 +7,8 @@ import pandas as pd
 # Har 1 second mein page refresh hoga live timer ke liye
 st_autorefresh(interval=1000, key="timer_refresh")
 
-API_URL = "http://127.0.0.1:8000/log-event/"
-SUMMARY_URL = "http://127.0.0.1:8000/get-summary/"
+API_URL = "https://time-tracker-n9cl.onrender.com"
+SUMMARY_URL = "https://time-tracker-n9cl.onrender.com/get-summary/"
 
 st.title("⏱️ AI Work Tracker")
 

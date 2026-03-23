@@ -3,12 +3,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
+import os
 
 
 
 
 # SQLite database file create hogi 'work_tracker.db' naam se
-SQLALCHEMY_DATABASE_URL = f"postgresql://postgres.gxrqasccdfdzjndrqrqo:Alliswell9211@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Engine create kar rahe hain jo DB se baat karega
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
