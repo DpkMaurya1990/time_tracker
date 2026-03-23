@@ -46,9 +46,11 @@ def log_event(data: TimeLogSchema, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/get-summary/")
 def get_summary(db: Session = Depends(get_db)):
-    logs = db.query(TimeLog).order_by(TimeLog.timestamp).all()
+    # Yahan 'TimeLog' ko badal kar 'DBTimeLog' kar diya hai
+    logs = db.query(DBTimeLog).order_by(DBTimeLog.timestamp).all()
     
     total_work_seconds = 0
     total_break_seconds = 0

@@ -75,33 +75,25 @@ try:
                 logs_data = logs_res.json()
                 if logs_data:
                     df = pd.DataFrame(logs_data)
-                    # Timestamp ko readable format mein convert karna
                     df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%H:%M:%S')
-                    st.dataframe(df, use_container_width=True)
+                    st.dataframe(df[['timestamp', 'event_type', 'source']], use_container_width=True)
+                    
+                    # --- CSV EXPORT LOGIC (Andar move kiya hai) ---
+                    st.write("") 
+                    csv = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Download Daily Report (CSV)",
+                        data=csv,
+                        file_name=f"work_report_{datetime.now().strftime('%Y-%m-%d')}.csv",
+                        mime='text/csv',
+                        use_container_width=True
+                    )
                 else:
-                    st.info("No activity logs found yet. Start working to see data!")
+                    st.info("No activity logs found yet.")
             else:
-                st.warning(f"Backend returned error: {logs_res.status_code}")
+                st.warning("Could not fetch timeline data.")
         except Exception as e:
-            st.error(f"Timeline fetch error: {e}")
-        if logs_res.status_code == 200:
-            logs_list = logs_res.json()
-            if logs_list:
-                df = pd.DataFrame(logs_list)
-                # Formatting Time for display
-                df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%H:%M:%S')
-                st.dataframe(df[['timestamp', 'event_type', 'source']], use_container_width=True)
-                
-        # --- CSV EXPORT LOGIC ---
-                st.write("") # Thoda space dene ke liye
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Download Daily Report (CSV)",
-                    data=csv,
-                    file_name=f"work_report_{datetime.now().strftime('%Y-%m-%d')}.csv",
-                    mime='text/csv',
-                    use_container_width=True
-                )        
+            st.error(f"Timeline fetch error: {e}")        
 
 except Exception as e:
     st.error("API is offline!")
