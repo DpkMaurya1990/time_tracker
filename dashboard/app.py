@@ -69,7 +69,21 @@ try:
 
         # Timeline Table
         st.subheader("📜 Activity Timeline")
-        logs_res = requests.get(f"{API_URL}/logs/")
+        try:
+            logs_res = requests.get(f"{API_URL}/logs/", timeout=10)
+            if logs_res.status_code == 200:
+                logs_data = logs_res.json()
+                if logs_data:
+                    df = pd.DataFrame(logs_data)
+                    # Timestamp ko readable format mein convert karna
+                    df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%H:%M:%S')
+                    st.dataframe(df, use_container_width=True)
+                else:
+                    st.info("No activity logs found yet. Start working to see data!")
+            else:
+                st.warning(f"Backend returned error: {logs_res.status_code}")
+        except Exception as e:
+            st.error(f"Timeline fetch error: {e}")
         if logs_res.status_code == 200:
             logs_list = logs_res.json()
             if logs_list:

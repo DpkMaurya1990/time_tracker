@@ -80,6 +80,18 @@ def get_summary(db: Session = Depends(get_db)):
 # Dashboard ke liye logs fetch karne wala endpoint
 @app.get("/logs/")
 def get_logs(db: Session = Depends(get_db)):
-    logs = db.query(DBTimeLog).order_by(DBTimeLog.timestamp.desc()).limit(50).all()
-    # Pydantic models ko JSON compatible banane ke liye list comprehension
-    return [{"timestamp": l.timestamp.isoformat(), "event_type": l.event_type, "source": l.source} for l in logs]
+    try:
+        # Latest 50 logs uthana (Naya pehle dikhega)
+        logs = db.query(DBTimeLog).order_by(DBTimeLog.timestamp.desc()).limit(50).all()
+        
+        # Manually JSON format mein convert karna
+        return [
+            {
+                "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "event_type": log.event_type,
+                "source": log.source
+            }
+            for log in logs
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
