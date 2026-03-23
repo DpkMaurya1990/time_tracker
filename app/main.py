@@ -1,29 +1,50 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .database import engine, Base, TimeLog, get_db
+from .database import engine, Base, get_db
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+from .database import TimeLog as DBTimeLog
+
 
 # Database tables create karne ke liye (agar nahi bane toh)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# --- CORS SETTINGS (Green Signal for Streamlit) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Isse har jagah se request allow hogi
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 2. Pydantic Model: Incoming data ka structure check karne ke liye
+class TimeLogSchema(BaseModel):
+    event_type: str
+
 @app.get("/")
-def read_root():
-    return {"status": "Work Tracker API is running"}
+def home():
+    return {"status": "API is Online", "server": "Render"}
 
 @app.post("/log-event/")
-def log_event(event_type: str, source: str = "manual", db: Session = Depends(get_db)):
-    # Naya log entry create karna
-    new_log = TimeLog(
-        event_type=event_type.upper(),
-        source=source,
-        timestamp=datetime.now()
-    )
-    db.add(new_log)
-    db.commit()
-    db.refresh(new_log)
-    return {"message": f"Event {event_type} logged successfully", "id": new_log.id}
+def log_event(data: TimeLogSchema, db: Session = Depends(database.get_db)):
+    try:
+        # Naya database entry create karna
+        new_entry = DBTimeLog(
+            event_type=data.event_type.upper(),
+            source="agent", # Agent se aane wala data
+            timestamp=datetime.now()
+        )
+        db.add(new_entry)
+        db.commit()
+        db.refresh(new_entry)
+        return {"message": "Data saved successfully", "id": new_entry.id}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/get-summary/")
 def get_summary(db: Session = Depends(get_db)):
@@ -56,8 +77,7 @@ def get_summary(db: Session = Depends(get_db)):
         "raw_logs_count": len(logs)
     }
     
-@app.get("/get-logs/")
-def get_logs(db: Session = Depends(get_db)):
-    # Saare logs ko latest time ke hisaab se fetch karna
-    logs = db.query(TimeLog).order_by(TimeLog.timestamp.desc()).all()
-    return logs
+# Dashboard ke liye logs fetch karne wala endpoint
+@app.get("/logs/")
+def get_logs(db: Session = Depends(database.get_db)):
+    return db.query(DBTimeLog).all()
