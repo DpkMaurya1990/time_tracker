@@ -4,7 +4,7 @@ from pynput import mouse, keyboard
 from datetime import datetime
 
 # Configuration
-API_URL = "http://127.0.0.1:8000/log-event/"
+API_URL = "https://time-tracker-n9cl.onrender.com/log-event/"
 IDLE_THRESHOLD = 300 # 5 minutes (300 seconds)
 
 class IdleDetector:
