@@ -1,0 +1,12 @@
+venv/
+timetracker_env/
+__pycache__/
+*.pyc
+.env
+work_tracker.db
+.streamlit/
+
+
+# Logs
+my_logs.txt
+*.log
