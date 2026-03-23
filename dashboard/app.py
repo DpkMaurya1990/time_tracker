@@ -5,7 +5,7 @@ from streamlit_autorefresh import st_autorefresh
 import pandas as pd
 
 # Har 1 second mein page refresh hoga live timer ke liye
-st_autorefresh(interval=5000, key="timer_refresh")
+st_autorefresh(interval=1000, key="timer_refresh")
 
 API_URL = "https://time-tracker-n9cl.onrender.com"
 SUMMARY_URL = "https://time-tracker-n9cl.onrender.com/get-summary/"
