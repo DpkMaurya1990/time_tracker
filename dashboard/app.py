@@ -11,17 +11,25 @@ API_URL = "https://time-tracker-n9cl.onrender.com"
 SUMMARY_URL = "https://time-tracker-n9cl.onrender.com/get-summary/"
 
 st.title("⏱️ AI Work Tracker")
+try:
+    check = requests.get(f"{API_URL}/")
+    if check.status_code == 200:
+        st.sidebar.success("✅ API is Online (Render)")
+    else:
+        st.sidebar.error("⚠️ API Issue")
+except:
+    st.sidebar.error("❌ API Offline")
 
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("▶️ Start Work", use_container_width=True):
-        requests.post(f"{API_URL}?event_type=START")
+        requests.post(f"{API_URL}/log-event/", json={"event_type": "START"})
 with col2:
     if st.button("⏸️ Take Break", use_container_width=True):
-        requests.post(f"{API_URL}?event_type=PAUSE")
+        requests.post(f"{API_URL}/log-event/", json={"event_type": "PAUSE"})
 with col3:
     if st.button("⏹️ Stop/End Day", use_container_width=True):
-        requests.post(f"{API_URL}?event_type=STOP")
+        requests.post(f"{API_URL}/log-event/", json={"event_type": "STOP"})
 
 st.divider()
 
@@ -61,7 +69,7 @@ try:
 
         # Timeline Table
         st.subheader("📜 Activity Timeline")
-        logs_res = requests.get("http://127.0.0.1:8000/get-logs/")
+        logs_res = requests.get(f"{API_URL}/logs/")
         if logs_res.status_code == 200:
             logs_list = logs_res.json()
             if logs_list:
