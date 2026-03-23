@@ -30,7 +30,7 @@ def home():
     return {"status": "API is Online", "server": "Render"}
 
 @app.post("/log-event/")
-def log_event(data: TimeLogSchema, db: Session = Depends(database.get_db)):
+def log_event(data: TimeLogSchema, db: Session = Depends(get_db)):
     try:
         # Naya database entry create karna
         new_entry = DBTimeLog(
@@ -79,5 +79,6 @@ def get_summary(db: Session = Depends(get_db)):
     
 # Dashboard ke liye logs fetch karne wala endpoint
 @app.get("/logs/")
-def get_logs(db: Session = Depends(database.get_db)):
-    return db.query(DBTimeLog).all()
+def get_logs(db: Session = Depends(get_db)):
+    logs=  db.query(DBTimeLog).all()
+    return logs
